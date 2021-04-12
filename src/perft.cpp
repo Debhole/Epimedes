@@ -44,7 +44,7 @@ namespace Epimedes
 			std::chrono::duration<float> duration = end - start;
 
 			std::cout << totalMoveCount << " moves in " << duration.count() * 1000 << "ms " 
-					  << "at " << totalMoveCount / duration.count() << "kps\n";
+					  << "at " << totalMoveCount / duration.count() / 1000 << "knps\n";
 		}
 
 		long perftSub(const Position& pos, int depth, int maxDepth)

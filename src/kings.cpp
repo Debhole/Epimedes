@@ -19,29 +19,25 @@ namespace Epimedes
 		void generateKingWalks(const Position& pos, std::vector<Move>& moves)
 		{
 			Color side = pos.getSideToMove();
-			const BitBoard& pieceBoard = side == Color::WHITE ? pos.getBoard(Piece::WHITE_KING) : pos.getBoard(Piece::BLACK_KING);
-			for (int i = 0; i < sizeof(BitBoard) * 8; i++)
+			int index = bitScanForward(side == Color::WHITE ? pos.getBoard(Piece::WHITE_KING) : pos.getBoard(Piece::BLACK_KING));
+
+			BitBoard kingMoves;
+			if (index > 9) kingMoves = Position::KING_SPAN << (index - 9);
+			else kingMoves = Position::KING_SPAN >> (9 - index);
+
+			File file = toFile(index % 8);
+			if (file == File::FILE_A) kingMoves &= ~Position::fileBoard(File::FILE_H);
+			else if (file == File::FILE_H) kingMoves &= ~Position::fileBoard(File::FILE_A);
+
+			kingMoves &= ~pos.getBoard(side);
+
+			while (kingMoves != 0)
 			{
-				if (((pieceBoard >> i) & 1) == 0) continue;
+				int mIndex = bitScanForward(kingMoves);
+				kingMoves &= ~(1ULL << mIndex);
 
-				BitBoard kingMoves;
-				if (i > 9) kingMoves = Position::KING_SPAN << (i - 9);
-				else kingMoves = Position::KING_SPAN >> (9 - i);
-
-				File file = toFile(i % 8);
-				if (file == File::FILE_A) kingMoves &= ~Position::fileBoard(File::FILE_H);
-				else if (file == File::FILE_H) kingMoves &= ~Position::fileBoard(File::FILE_A);
-
-				kingMoves &= ~pos.getBoard(side);
-
-				for (int j = 0; j < sizeof(BitBoard) * 8; j++)
-				{
-					if (((kingMoves >> j) & 1) == 1)
-					{
-						Move move = (j << 6) + i;
-						moves.push_back(move);
-					}
-				}
+				Move move = (mIndex << 6) + index;
+				moves.push_back(move);
 			}
 		}
 		void generateCastles(const Position& pos, std::vector<Move>& moves)

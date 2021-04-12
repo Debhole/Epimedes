@@ -14,15 +14,16 @@ namespace Epimedes
 		{
 			Color side = pos.getSideToMove();
 			BitBoard pieceBoard = side == Color::WHITE ? pos.getBoard(Piece::WHITE_KNIGHT) : pos.getBoard(Piece::BLACK_KNIGHT);
-			for (int i = 0; i < sizeof(BitBoard) * 8; i++)
+			while(pieceBoard != 0)
 			{
-				if (((pieceBoard >> i) & 1) == 0) continue;
+				int index = bitScanForward(pieceBoard);
+				pieceBoard &= ~(1ULL << index);
 
 				BitBoard knightMoves;
-				if (i > 18) knightMoves = Position::KNIGHT_SPAN << (i - 18);
-				else knightMoves = Position::KNIGHT_SPAN >> (18 - i);
+				if (index > 18) knightMoves = Position::KNIGHT_SPAN << (index - 18);
+				else knightMoves = Position::KNIGHT_SPAN >> (18 - index);
 
-				File file = toFile(i % 8);
+				File file = toFile(index % 8);
 				switch (file)
 				{
 					case File::FILE_A:
@@ -41,13 +42,13 @@ namespace Epimedes
 
 				knightMoves &= ~pos.getBoard(side);
 
-				for (int j = 0; j < sizeof(BitBoard) * 8; j++)
+				while(knightMoves != 0)
 				{
-					if (((knightMoves >> j) & 1) == 1)
-					{
-						Move move = (j << 6) + i;
-						moves.push_back(move);
-					}
+					int mIndex = bitScanForward(knightMoves);
+					knightMoves &= ~(1ULL << mIndex);
+
+					Move move = (mIndex << 6) + index;
+					moves.push_back(move);
 				}
 			}
 		}

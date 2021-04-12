@@ -304,15 +304,15 @@ namespace Epimedes
 
 		BitBoard pieceBoard = (color == Color::BLACK) ? getBoard(Piece::BLACK_QUEEN) | getBoard(Piece::BLACK_ROOK):
 														getBoard(Piece::WHITE_QUEEN) | getBoard(Piece::WHITE_ROOK);
-		for (int i = 0; i < sizeof(BitBoard) * 8; i++)
+		while(pieceBoard != 0)
 		{
-			if (((pieceBoard >> i) & 1) == 0)
-				continue;
+			int mIndex = bitScanForward(pieceBoard);
+			pieceBoard &= ~(1ULL << mIndex);
 
-			Rank rank = toRank(i / 8);
-			File file = toFile(i % 8);
+			Rank rank = toRank(mIndex / 8);
+			File file = toFile(mIndex % 8);
 
-			BitBoard pPos = 1ULL << i;
+			BitBoard pPos = 1ULL << mIndex;
 			BitBoard horizontalMoves = ((getOccupied() - 2 * pPos) ^ reverse(reverse(getOccupied()) - 2 * reverse(pPos))) & Position::rankBoard(rank);
 			BitBoard verticalMoves = (((getOccupied() & Position::fileBoard(file)) - 2 * pPos) ^ reverse(reverse((getOccupied() & Position::fileBoard(file))) - 2 * reverse(pPos))) & Position::fileBoard(file);
 
@@ -323,15 +323,15 @@ namespace Epimedes
 
 		pieceBoard = (color == Color::BLACK) ? getBoard(Piece::BLACK_QUEEN) | getBoard(Piece::BLACK_BISHOP):
 											   getBoard(Piece::WHITE_QUEEN) | getBoard(Piece::WHITE_BISHOP);
-		for (int i = 0; i < sizeof(BitBoard) * 8; i++)
+		while(pieceBoard != 0)
 		{
-			if (((pieceBoard >> i) & 1) == 0)
-				continue;
+			int mIndex = bitScanForward(pieceBoard);
+			pieceBoard &= ~(1ULL << mIndex);
 
-			Rank rank = toRank(i / 8);
-			File file = toFile(i % 8);
+			Rank rank = toRank(mIndex / 8);
+			File file = toFile(mIndex % 8);
 
-			BitBoard pPos = 1ULL << i;
+			BitBoard pPos = 1ULL << mIndex;
 			BitBoard diagonalMoves = (((getOccupied() & Position::diagonalBoard(rank, file)) - 2 * pPos)
 				^ reverse(reverse((getOccupied() & Position::diagonalBoard(rank, file))) - 2 * reverse(pPos))) & Position::diagonalBoard(rank, file);
 			BitBoard antiDagionalMoves = (((getOccupied() & Position::antiDiagonalBoard(rank, file)) - 2 * pPos)
@@ -344,15 +344,16 @@ namespace Epimedes
 
 		pieceBoard = (color == Color::BLACK) ? getBoard(Piece::BLACK_KNIGHT):
 											   getBoard(Piece::WHITE_KNIGHT);
-		for (int i = 0; i < sizeof(BitBoard) * 8; i++)
+		while(pieceBoard != 0)
 		{
-			if (((pieceBoard >> i) & 1) == 0) continue;
+			int mIndex = bitScanForward(pieceBoard);
+			pieceBoard &= ~(1ULL << mIndex);
 
 			BitBoard knightMoves;
-			if (i > 18) knightMoves = Position::KNIGHT_SPAN << (i - 18);
-			else knightMoves = Position::KNIGHT_SPAN >> (18 - i);
+			if (mIndex > 18) knightMoves = Position::KNIGHT_SPAN << (mIndex - 18);
+			else knightMoves = Position::KNIGHT_SPAN >> (18 - mIndex);
 
-			File file = toFile(i % 8);
+			File file = toFile(mIndex % 8);
 			switch (file)
 			{
 				case File::FILE_A:
@@ -374,20 +375,17 @@ namespace Epimedes
 
 		pieceBoard = (color == Color::BLACK) ? getBoard(Piece::BLACK_KING):
 											   getBoard(Piece::WHITE_KING);
-		for (int i = 0; i < sizeof(BitBoard) * 8; i++)
-		{
-			if (((pieceBoard >> i) & 1) == 0) continue;
+		int mIndex = bitScanForward(pieceBoard);
 
-			BitBoard kingMoves;
-			if (i > 9) kingMoves = Position::KING_SPAN << (i - 9);
-			else kingMoves = Position::KING_SPAN >> (9 - i);
+		BitBoard kingMoves;
+		if (mIndex > 9) kingMoves = Position::KING_SPAN << (mIndex - 9);
+		else kingMoves = Position::KING_SPAN >> (9 - mIndex);
 
-			File file = toFile(i % 8);
-			if (file == File::FILE_A) kingMoves &= ~Position::fileBoard(File::FILE_H);
-			else if (file == File::FILE_H) kingMoves &= ~Position::fileBoard(File::FILE_A);
+		File file = toFile(mIndex % 8);
+		if (file == File::FILE_A) kingMoves &= ~Position::fileBoard(File::FILE_H);
+		else if (file == File::FILE_H) kingMoves &= ~Position::fileBoard(File::FILE_A);
 
-			attacked |= kingMoves;
-		}
+		attacked |= kingMoves;
 
 		return attacked;
 	}

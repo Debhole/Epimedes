@@ -16,6 +16,14 @@ inline BitBoard reverse(BitBoard b)
 	return b;
 }
 
+extern const int bitScanTable[64];
+
+inline int bitScanForward(const BitBoard& bitBoard)
+{
+	const BitBoard debruijin64 = 0x03f79d71b4cb0a89;
+	return bitScanTable[((bitBoard & -bitBoard) * debruijin64) >> 58];
+}
+
 enum class Piece : int
 {
 	WHITE_PAWN, WHITE_KNIGHT, WHITE_BISHOP, WHITE_ROOK, WHITE_QUEEN, WHITE_KING,

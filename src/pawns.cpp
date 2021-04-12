@@ -29,48 +29,49 @@ namespace Epimedes
 		{
 			// Advance 1 square
 			BitBoard pawnMoves = (pos.getBoard(Piece::WHITE_PAWN) << 8) & ~(pos.getOccupied() | Position::rankBoard(Rank::RANK_8));
-			for (int i = 0; i < sizeof(BitBoard) * 8; i++)
+			while(pawnMoves != 0)
 			{
-				if (((pawnMoves >> i) & 1) == 1)
-				{
-					Move move = (i << 6) + (i - 8);
-					moves.push_back(move);
-				}
+				int index = bitScanForward(pawnMoves);
+				pawnMoves &= ~(1ULL << index);
+
+				Move move = (index << 6) + (index - 8);
+				moves.push_back(move);
 			}
 
 			// Advance 2 squares
 			pawnMoves = (pos.getBoard(Piece::WHITE_PAWN) << 16) & ~(pos.getOccupied() | pos.getOccupied() << 8) & Position::rankBoard(Rank::RANK_4);
-			for (int i = 0; i < sizeof(BitBoard) * 8; i++)
+			while(pawnMoves != 0)
 			{
-				if (((pawnMoves >> i) & 1) == 1)
-				{
-					Move move = (i << 6) + (i - 16);
-					moves.push_back(move);
-				}
+				int index = bitScanForward(pawnMoves);
+				pawnMoves &= ~(1ULL << index);
+				
+				Move move = (index << 6) + (index - 16);
+				moves.push_back(move);
 			}
 		}
 		void generateWhitePawnCaptures(const Position& pos, std::vector<Move>& moves)
 		{
 			// Capture right
 			BitBoard pawnMoves = (pos.getBoard(Piece::WHITE_PAWN) << 9) & pos.getBoard(Color::BLACK) & ~(Position::fileBoard(File::FILE_A) | Position::rankBoard(Rank::RANK_8));
-			for (int i = 0; i < sizeof(BitBoard) * 8; i++)
+			while(pawnMoves != 0)
 			{
-				if (((pawnMoves >> i) & 1) == 1)
-				{
-					Move move = (i << 6) + (i - 9);
-					moves.push_back(move);
-				}
+				int index = bitScanForward(pawnMoves);
+				pawnMoves &= ~(1ULL << index);
+				
+				Move move = (index << 6) + (index - 9);
+				moves.push_back(move);
 			}
 
 			// Capture left
 			pawnMoves = (pos.getBoard(Piece::WHITE_PAWN) << 7) & pos.getBoard(Color::BLACK) & ~(Position::fileBoard(File::FILE_H) | Position::rankBoard(Rank::RANK_8));
-			for (int i = 0; i < sizeof(BitBoard) * 8; i++)
+			while(pawnMoves != 0)
 			{
-				if (((pawnMoves >> i) & 1) == 1)
-				{
-					Move move = (i << 6) + (i - 7);
-					moves.push_back(move);
-				}
+				int index = bitScanForward(pawnMoves);
+				pawnMoves &= ~(1ULL << index);
+
+				Move move = (index << 6) + (index - 7);
+				moves.push_back(move);
+				
 			}
 
 			// En Passant
@@ -78,24 +79,23 @@ namespace Epimedes
 			{
 				// En Passant right
 				pawnMoves = (pos.getBoard(Piece::WHITE_PAWN) << 9) & (1ULL << numOf(pos.getEPSquare())) & ~Position::fileBoard(File::FILE_A);
-				for (int i = 0; i < sizeof(BitBoard) * 8; i++)
+				
+				if (pawnMoves != 0)
 				{
-					if (((pawnMoves >> i) & 1) == 1)
-					{
-						Move move = (i << 6) + (i - 9) + (0b01 << 14);
-						moves.push_back(move);
-					}
+					int index = bitScanForward(pawnMoves);
+
+					Move move = (index << 6) + (index - 9) + (0b01 << 14);
+					moves.push_back(move);
 				}
 
 				// En Passant left
 				pawnMoves = (pos.getBoard(Piece::WHITE_PAWN) << 7) & (1ULL << numOf(pos.getEPSquare())) & ~Position::fileBoard(File::FILE_H);
-				for (int i = 0; i < sizeof(BitBoard) * 8; i++)
+				if(pawnMoves != 0)
 				{
-					if (((pawnMoves >> i) & 1) == 1)
-					{
-						Move move = (i << 6) + (i - 7) + (0b01 << 14);
-						moves.push_back(move);
-					}
+					int index = bitScanForward(pawnMoves);
+					
+					Move move = (index << 6) + (index - 7) + (0b01 << 14);
+					moves.push_back(move);
 				}
 			}
 		}
@@ -103,43 +103,43 @@ namespace Epimedes
 		{
 			// Advance 1 square
 			BitBoard pawnMoves = (pos.getBoard(Piece::WHITE_PAWN) << 8) & ~pos.getOccupied() & Position::rankBoard(Rank::RANK_8);
-			for (int i = 0; i < sizeof(BitBoard) * 8; i++)
+			while(pawnMoves != 0)
 			{
-				if (((pawnMoves >> i) & 1) == 1)
+				int index = bitScanForward(pawnMoves);
+				pawnMoves &= ~(1ULL << index);
+
+				for (int j = 0; j < 4; j++)
 				{
-					for (int j = 0; j < 4; j++)
-					{
-						Move move = (i << 6) + (i - 8) + (((3 << 2) + j) << 12);
-						moves.push_back(move);
-					}
+					Move move = (index << 6) + (index - 8) + (((3 << 2) + j) << 12);
+					moves.push_back(move);
 				}
 			}
 
 			// Capture right
 			pawnMoves = (pos.getBoard(Piece::WHITE_PAWN) << 9) & pos.getBoard(Color::BLACK) & ~Position::fileBoard(File::FILE_A) & Position::rankBoard(Rank::RANK_8);
-			for (int i = 0; i < sizeof(BitBoard) * 8; i++)
+			while(pawnMoves != 0)
 			{
-				if (((pawnMoves >> i) & 1) == 1)
+				int index = bitScanForward(pawnMoves);
+				pawnMoves &= ~(1ULL << index);
+
+				for (int j = 0; j < 4; j++)
 				{
-					for (int j = 0; j < 4; j++)
-					{
-						Move move = (i << 6) + (i - 9) + (((3 << 2) + j) << 12);
-						moves.push_back(move);
-					}
+					Move move = (index << 6) + (index - 9) + (((3 << 2) + j) << 12);
+					moves.push_back(move);
 				}
 			}
 
 			// Capture left
 			pawnMoves = (pos.getBoard(Piece::WHITE_PAWN) << 7) & pos.getBoard(Color::BLACK) & ~Position::fileBoard(File::FILE_H) & Position::rankBoard(Rank::RANK_8);
-			for (int i = 0; i < sizeof(BitBoard) * 8; i++)
+			while(pawnMoves != 0)
 			{
-				if (((pawnMoves >> i) & 1) == 1)
+				int index = bitScanForward(pawnMoves);
+				pawnMoves &= ~(1ULL << index);
+
+				for (int j = 0; j < 4; j++)
 				{
-					for (int j = 0; j < 4; j++)
-					{
-						Move move = (i << 6) + (i - 7) + (((3 << 2) + j) << 12);
-						moves.push_back(move);
-					}
+					Move move = (index << 6) + (index - 7) + (((3 << 2) + j) << 12);
+					moves.push_back(move);
 				}
 			}
 		}
@@ -148,48 +148,48 @@ namespace Epimedes
 		{
 			// Advance 1 square
 			BitBoard pawnMoves = (pos.getBoard(Piece::BLACK_PAWN) >> 8) & ~(pos.getOccupied() | Position::rankBoard(Rank::RANK_1));
-			for (int i = 0; i < sizeof(BitBoard) * 8; i++)
+			while(pawnMoves != 0)
 			{
-				if (((pawnMoves >> i) & 1) == 1)
-				{
-					Move move = (i << 6) + (i + 8);
-					moves.push_back(move);
-				}
+				int index = bitScanForward(pawnMoves);
+				pawnMoves &= ~(1ULL << index);
+
+				Move move = (index << 6) + (index + 8);
+				moves.push_back(move);
 			}
 
 			// Advance 2 squares
 			pawnMoves = (pos.getBoard(Piece::BLACK_PAWN) >> 16) & ~(pos.getOccupied() | pos.getOccupied() >> 8) & Position::rankBoard(Rank::RANK_5);
-			for (int i = 0; i < sizeof(BitBoard) * 8; i++)
+			while(pawnMoves != 0)
 			{
-				if (((pawnMoves >> i) & 1) == 1)
-				{
-					Move move = (i << 6) + (i + 16);
-					moves.push_back(move);
-				}
+				int index = bitScanForward(pawnMoves);
+				pawnMoves &= ~(1ULL << index);
+
+				Move move = (index << 6) + (index + 16);
+				moves.push_back(move);
 			}
 		}
 		void generateBlackPawnCaptures(const Position& pos, std::vector<Move>& moves)
 		{
 			// Capture right
 			BitBoard pawnMoves = (pos.getBoard(Piece::BLACK_PAWN) >> 9) & pos.getBoard(Color::WHITE) & ~(pos.fileBoard(File::FILE_H) | pos.rankBoard(Rank::RANK_1));
-			for (int i = 0; i < sizeof(BitBoard) * 8; i++)
+			while(pawnMoves != 0)
 			{
-				if (((pawnMoves >> i) & 1) == 1)
-				{
-					Move move = (i << 6) + (i + 9);
-					moves.push_back(move);
-				}
+				int index = bitScanForward(pawnMoves);
+				pawnMoves &= ~(1ULL << index);
+
+				Move move = (index << 6) + (index + 9);
+				moves.push_back(move);
 			}
 
 			// Capture left
 			pawnMoves = (pos.getBoard(Piece::BLACK_PAWN) >> 7) & pos.getBoard(Color::WHITE) & ~(pos.fileBoard(File::FILE_A) | pos.rankBoard(Rank::RANK_1));
-			for (int i = 0; i < sizeof(BitBoard) * 8; i++)
+			while(pawnMoves != 0)
 			{
-				if (((pawnMoves >> i) & 1) == 1)
-				{
-					Move move = (i << 6) + (i + 7);
-					moves.push_back(move);
-				}
+				int index = bitScanForward(pawnMoves);
+				pawnMoves &= ~(1ULL << index);
+
+				Move move = (index << 6) + (index + 7);
+				moves.push_back(move);
 			}
 
 			// En Passant
@@ -197,24 +197,22 @@ namespace Epimedes
 			{
 				//En passant right
 				pawnMoves = (pos.getBoard(Piece::BLACK_PAWN) >> 9) & (1ULL << numOf(pos.getEPSquare())) & ~Position::fileBoard(File::FILE_H);
-				for (int i = 0; i < sizeof(BitBoard) * 8; i++)
+				if (pawnMoves != 0)
 				{
-					if (((pawnMoves >> i) & 1) == 1)
-					{
-						Move move = (i << 6) + (i + 9) + (0b0100 << 12);
-						moves.push_back(move);
-					}
+					int index = bitScanForward(pawnMoves);
+
+					Move move = (index << 6) + (index+ 9) + (0b0100 << 12);
+					moves.push_back(move);
 				}
 
 				//En passant left
 				pawnMoves = (pos.getBoard(Piece::BLACK_PAWN) >> 7) & (1ULL << numOf(pos.getEPSquare())) & ~Position::fileBoard(File::FILE_A);
-				for (int i = 0; i < sizeof(BitBoard) * 8; i++)
+				if(pawnMoves != 0)
 				{
-					if (((pawnMoves >> i) & 1) == 1)
-					{
-						Move move = (i << 6) + (i + 7) + (0b0100 << 12);
-						moves.push_back(move);
-					}
+					int index = bitScanForward(pawnMoves);
+
+					Move move = (index << 6) + (index + 7) + (0b0100 << 12);
+					moves.push_back(move);
 				}
 			}
 		}
@@ -222,43 +220,43 @@ namespace Epimedes
 		{
 			// Promotion by advancing 1 square
 			BitBoard pawnMoves = (pos.getBoard(Piece::BLACK_PAWN) >> 8) & ~pos.getOccupied() & Position::rankBoard(Rank::RANK_1);
-			for (int i = 0; i < sizeof(BitBoard) * 8; i++)
+			while(pawnMoves != 0)
 			{
-				if (((pawnMoves >> i) & 1) == 1)
+				int index = bitScanForward(pawnMoves);
+				pawnMoves &= ~(1ULL << index);
+
+				for (int j = 0; j < 4; j++)
 				{
-					for (int j = 0; j < 4; j++)
-					{
-						Move move = (i << 6) + (i + 8) + (((3 << 2) + j) << 12);
-						moves.push_back(move);
-					}
+					Move move = (index << 6) + (index + 8) + (((3 << 2) + j) << 12);
+					moves.push_back(move);
 				}
 			}
 
 			// Promotion by capturing right
 			pawnMoves = (pos.getBoard(Piece::BLACK_PAWN) >> 9) & pos.getBoard(Color::WHITE) & ~pos.fileBoard(File::FILE_H) & pos.rankBoard(Rank::RANK_1);
-			for (int i = 0; i < sizeof(BitBoard) * 8; i++)
+			while(pawnMoves != 0)
 			{
-				if (((pawnMoves >> i) & 1) == 1)
+				int index = bitScanForward(pawnMoves);
+				pawnMoves &= ~(1ULL << index);
+
+				for (int j = 0; j < 4; j++)
 				{
-					for (int j = 0; j < 4; j++)
-					{
-						Move move = (i << 6) + (i + 9) + (((3 << 2) + j) << 12);
-						moves.push_back(move);
-					}
+					Move move = (index << 6) + (index + 9) + (((3 << 2) + j) << 12);
+					moves.push_back(move);
 				}
 			}
 
 			// Promotion by capturing left
 			pawnMoves = (pos.getBoard(Piece::BLACK_PAWN) >> 7) & pos.getBoard(Color::WHITE) & ~pos.fileBoard(File::FILE_A) & pos.rankBoard(Rank::RANK_1);
-			for (int i = 0; i < sizeof(BitBoard) * 8; i++)
+			while(pawnMoves != 0)
 			{
-				if (((pawnMoves >> i) & 1) == 1)
+				int index = bitScanForward(pawnMoves);
+				pawnMoves &= ~(1ULL << index);
+
+				for (int j = 0; j < 4; j++)
 				{
-					for (int j = 0; j < 4; j++)
-					{
-						Move move = (i << 6) + (i + 7) + (((3 << 2) + j) << 12);
-						moves.push_back(move);
-					}
+					Move move = (index << 6) + (index + 7) + (((3 << 2) + j) << 12);
+					moves.push_back(move);
 				}
 			}
 		}
