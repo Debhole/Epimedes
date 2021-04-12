@@ -1,2 +1,2 @@
 # Epimedes
-Epimedes UCI Chess Engine
+Epimedes Chess Engine and GUI
